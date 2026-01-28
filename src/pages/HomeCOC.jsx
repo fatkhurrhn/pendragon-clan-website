@@ -12,7 +12,7 @@ const HomeCOC = () => {
 
     // API base URL - auto switches between dev/prod
     const API_BASE = process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3001/api'
+        ? 'http://localhost:3002/api'
         : '/api';
 
     useEffect(() => {
@@ -89,7 +89,7 @@ const HomeCOC = () => {
 
                             {process.env.NODE_ENV === 'development' && (
                                 <a
-                                    href="http://localhost:3001/health"
+                                    href="http://localhost:3002/health"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="block text-center text-amber-400 hover:text-amber-300 text-sm"
