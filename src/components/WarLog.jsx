@@ -1,126 +1,86 @@
-// src/components/WarLog.jsx
 import React from 'react';
+import { Trophy, Sword, Star, Percent } from 'lucide-react';
 
 const WarLog = ({ wars }) => {
     if (!wars || wars.length === 0) {
         return (
-            <div className="text-center py-8">
-                <i className="ri-sword-line text-4xl text-gray-600 mb-4"></i>
-                <p className="text-gray-400">No war data available</p>
-                <p className="text-gray-500 text-sm mt-2">Clan might be in preparation day</p>
+            <div className="text-center py-12 text-slate-500">
+                <Sword className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No recent wars found</p>
             </div>
         );
     }
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">Recent Wars</h3>
-                <div className="text-sm text-gray-400">
-                    Showing {wars.length} {wars.length === 1 ? 'war' : 'wars'}
-                </div>
-            </div>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <Trophy className="w-6 h-6 text-yellow-400" />
+                Recent Wars ({wars.length})
+            </h2>
 
             <div className="space-y-4">
-                {wars.map((war, index) => (
-                    <WarCard key={index} war={war} />
-                ))}
-            </div>
+                {wars.slice(0, 10).map((war, idx) => {
+                    const isWin = war.result === 'win';
+                    const isLoss = war.result === 'loss';
+                    const bgColor = isWin ? 'bg-green-900/20 border-green-500/30' :
+                        isLoss ? 'bg-red-900/20 border-red-500/30' :
+                            'bg-yellow-900/20 border-yellow-500/30';
 
-            {/* War Statistics */}
-            <div className="mt-8 bg-gray-900/50 rounded-xl p-4">
-                <h4 className="text-lg font-bold text-white mb-3">War Statistics</h4>
-                <div className="grid grid-cols-3 gap-4">
-                    <StatItem
-                        label="Wins"
-                        value={wars.filter(w => w.result === 'win').length}
-                        color="text-green-400"
-                    />
-                    <StatItem
-                        label="Losses"
-                        value={wars.filter(w => w.result === 'lose').length}
-                        color="text-red-400"
-                    />
-                    <StatItem
-                        label="Draws"
-                        value={wars.filter(w => w.result === 'tie' || !w.result).length}
-                        color="text-yellow-400"
-                    />
-                </div>
-            </div>
-        </div>
-    );
-};
+                    return (
+                        <div key={idx} className={`p-4 rounded-xl border ${bgColor}`}>
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <span className={`text-lg font-bold ${isWin ? 'text-green-400' : isLoss ? 'text-red-400' : 'text-yellow-400'
+                                        }`}>
+                                        {war.result?.toUpperCase() || 'DRAW'}
+                                    </span>
+                                    <span className="text-slate-400 text-sm ml-2">
+                                        vs {war.opponent?.name || 'Unknown'}
+                                    </span>
+                                </div>
+                                <span className="text-xs text-slate-500">
+                                    {war.teamSize} vs {war.teamSize}
+                                </span>
+                            </div>
 
-const WarCard = ({ war }) => {
-    const getResultColor = (result) => {
-        switch (result) {
-            case 'win': return 'bg-green-900/30 border-green-700/50 text-green-400';
-            case 'lose': return 'bg-red-900/30 border-red-700/50 text-red-400';
-            case 'tie': return 'bg-yellow-900/30 border-yellow-700/50 text-yellow-400';
-            default: return 'bg-gray-800 border-gray-700 text-gray-400';
-        }
-    };
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                                <div className="bg-slate-900/50 p-3 rounded">
+                                    <div className="text-xs text-slate-400 mb-1">Stars</div>
+                                    <div className="font-bold text-lg flex items-center justify-center gap-1">
+                                        <Star className="w-4 h-4 text-yellow-400" />
+                                        {war.clan.stars} - {war.opponent.stars}
+                                    </div>
+                                </div>
 
-    const getResultIcon = (result) => {
-        switch (result) {
-            case 'win': return 'ri-sword-fill';
-            case 'lose': return 'ri-shield-cross-fill';
-            case 'tie': return 'ri-scales-fill';
-            default: return 'ri-question-fill';
-        }
-    };
+                                <div className="bg-slate-900/50 p-3 rounded">
+                                    <div className="text-xs text-slate-400 mb-1">Destruction</div>
+                                    <div className="font-bold text-lg flex items-center justify-center gap-1">
+                                        <Percent className="w-4 h-4 text-blue-400" />
+                                        {war.clan.destructionPercentage}% - {war.opponent.destructionPercentage}%
+                                    </div>
+                                </div>
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    };
+                                <div className="bg-slate-900/50 p-3 rounded">
+                                    <div className="text-xs text-slate-400 mb-1">Attacks</div>
+                                    <div className="font-bold text-lg">
+                                        {war.clan.attacks} / {war.teamSize * 2}
+                                    </div>
+                                </div>
+                            </div>
 
-    return (
-        <div className="bg-gray-900/30 rounded-xl p-4 border border-gray-800 hover:border-gray-700 transition">
-            <div className="flex justify-between items-center mb-3">
-                <div>
-                    <div className="text-white font-bold mb-1">vs {war.opponent?.name || 'Unknown Clan'}</div>
-                    <div className="text-sm text-gray-400">
-                        <i className="ri-team-fill mr-1"></i>
-                        Team Size: {war.teamSize}
-                    </div>
-                </div>
-
-                <div className={`px-4 py-2 rounded-full border ${getResultColor(war.result)}`}>
-                    <div className="flex items-center">
-                        <i className={`${getResultIcon(war.result)} mr-2`}></i>
-                        <span className="font-bold">{war.result?.toUpperCase() || 'UNKNOWN'}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="flex justify-between items-center text-sm text-gray-500">
-                <div>
-                    <i className="ri-calendar-line mr-1"></i>
-                    {formatDate(war.endTime)}
-                </div>
-                <div>
-                    {war.clan?.stars !== undefined && war.opponent?.stars !== undefined && (
-                        <span className="text-white">
-                            {war.clan.stars} - {war.opponent.stars} Stars
-                        </span>
-                    )}
-                </div>
+                            {war.endTime && (
+                                <div className="mt-3 text-xs text-slate-500 text-right">
+                                    Ended: {new Date(war.endTime).toLocaleDateString('en-US', {
+                                        month: 'short', day: 'numeric', year: 'numeric'
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
 };
-
-const StatItem = ({ label, value, color }) => (
-    <div className="text-center">
-        <div className={`text-2xl font-bold ${color}`}>{value}</div>
-        <div className="text-sm text-gray-400 mt-1">{label}</div>
-    </div>
-);
 
 export default WarLog;

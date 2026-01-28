@@ -2,40 +2,28 @@
   "name": "pendragon-clan-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Official website for Pendragon Clan (#2Y29VCP89) - Clash of Clans",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fatkhurrhn/pendragon-clan.git"
-  },
   "scripts": {
     "dev": "concurrently \"npm run proxy\" \"react-scripts start\"",
     "start": "react-scripts start",
-    "proxy": "cd proxy && node server.js",
     "build": "react-scripts build",
+    "proxy": "cd proxy && node server.js",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "vercel-build": "npm run build"
+    "eject": "react-scripts eject"
   },
   "dependencies": {
-    "axios": "^1.13.4",
+    "axios": "^1.6.0",
+    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-refresh": "^0.18.0",
     "react-scripts": "5.0.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^5.1.2",
     "ajv": "^8.12.0",
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
     "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
-    "vite": "^7.3.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
+    "react-refresh": "^0.18.0",
+    "tailwindcss": "^3.3.5"
   },
   "browserslist": {
     "production": [
@@ -48,8 +36,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxyDependencies": {
-    "proxy": "file:./proxy"
   }
 }

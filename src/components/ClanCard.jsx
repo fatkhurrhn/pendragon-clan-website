@@ -1,84 +1,89 @@
-// src/components/ClanCard.jsx
 import React from 'react';
+import { Trophy, Star, Shield, Swords } from 'lucide-react';
 
-const ClanCard = ({ clanData }) => {
-    if (!clanData) return null;
-
+const ClanCard = ({ data, currentWar }) => {
     return (
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-amber-500/20 shadow-xl">
-            {/* Clan Header */}
-            <div className="flex items-center mb-6">
-                <div className="relative">
-                    <img
-                        src={clanData.badgeUrls?.large}
-                        alt="Clan Badge"
-                        className="w-20 h-20 rounded-xl border-3 border-amber-500/30"
-                    />
-                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-amber-600 to-amber-800 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-3 border-gray-900">
-                        {clanData.clanLevel}
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Clan Info */}
+                <div className="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                    <h2 className="text-2xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
+                        <Shield className="w-6 h-6" /> Clan Information
+                    </h2>
+                    <div className="space-y-3">
+                        <div className="flex justify-between border-b border-slate-700 pb-2">
+                            <span className="text-slate-400">Name</span>
+                            <span className="font-semibold">{data.name}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-slate-700 pb-2">
+                            <span className="text-slate-400">Level</span>
+                            <span className="font-semibold text-yellow-400">{data.clanLevel}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-slate-700 pb-2">
+                            <span className="text-slate-400">Members</span>
+                            <span className="font-semibold">{data.members}/50</span>
+                        </div>
+                        <div className="flex justify-between border-b border-slate-700 pb-2">
+                            <span className="text-slate-400">War Wins</span>
+                            <span className="font-semibold text-green-400">{data.warWins}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-slate-700 pb-2">
+                            <span className="text-slate-400">War Win Streak</span>
+                            <span className="font-semibold text-orange-400">{data.warWinStreak}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-slate-400">Location</span>
+                            <span className="font-semibold">{data.location?.name || 'International'}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="ml-4">
-                    <h2 className="text-2xl font-bold text-white">{clanData.name}</h2>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="bg-amber-600/20 text-amber-400 text-xs px-3 py-1 rounded-full">
-                            <i className="ri-user-star-fill mr-1"></i> {clanData.owner?.name || 'Nana'}
-                        </span>
-                        <span className="bg-gray-700/50 text-gray-300 text-xs px-3 py-1 rounded-full">
-                            {clanData.tag}
-                        </span>
-                        <span className="bg-blue-600/20 text-blue-400 text-xs px-3 py-1 rounded-full">
-                            <i className="ri-map-pin-fill mr-1"></i> {clanData.location?.name}
-                        </span>
-                    </div>
+                {/* War Status */}
+                <div className="bg-slate-900/50 p-6 rounded-xl border border-slate-700">
+                    <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                        <Swords className="w-6 h-6" /> War Status
+                    </h2>
+                    {currentWar ? (
+                        <div className="space-y-4">
+                            <div className="text-center p-4 bg-slate-800 rounded-lg">
+                                <p className="text-lg font-bold">{currentWar.state === 'inWar' ? '🔥 Currently in War!' : `State: ${currentWar.state}`}</p>
+                                {currentWar.teamSize && (
+                                    <p className="text-slate-400 mt-2">Team Size: {currentWar.teamSize} vs {currentWar.teamSize}</p>
+                                )}
+                            </div>
+                            {currentWar.clan && currentWar.opponent && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="text-center p-3 bg-blue-900/30 rounded-lg border border-blue-500/30">
+                                        <p className="font-bold text-blue-400">Us</p>
+                                        <p className="text-2xl font-bold">{currentWar.clan.stars} ⭐</p>
+                                        <p className="text-sm text-slate-400">{currentWar.clan.destructionPercentage}%</p>
+                                    </div>
+                                    <div className="text-center p-3 bg-red-900/30 rounded-lg border border-red-500/30">
+                                        <p className="font-bold text-red-400">Enemy</p>
+                                        <p className="text-2xl font-bold">{currentWar.opponent.stars} ⭐</p>
+                                        <p className="text-sm text-slate-400">{currentWar.opponent.destructionPercentage}%</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-slate-500">
+                            <p>No active war</p>
+                            <p className="text-sm mt-2">Check back later or view War Log</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* Description */}
-            <div className="mb-6">
-                <p className="text-gray-300 whitespace-pre-line text-sm">{clanData.description}</p>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <StatBox
-                    icon="ri-team-fill"
-                    value={clanData.members}
-                    label="Members"
-                    color="text-blue-400"
-                />
-                <StatBox
-                    icon="ri-trophy-fill"
-                    value={clanData.clanPoints?.toLocaleString()}
-                    label="Clan Points"
-                    color="text-amber-400"
-                />
-                <StatBox
-                    icon="ri-sword-fill"
-                    value={clanData.warWins}
-                    label="War Wins"
-                    color="text-red-400"
-                />
-                <StatBox
-                    icon="ri-medal-fill"
-                    value={clanData.warWinStreak}
-                    label="Win Streak"
-                    color="text-green-400"
-                />
-            </div>
+            {data.description && (
+                <div className="bg-slate-900/30 p-6 rounded-xl border border-slate-700">
+                    <h3 className="font-bold text-lg mb-2 text-slate-300">Description</h3>
+                    <p className="text-slate-400 whitespace-pre-line">{data.description}</p>
+                </div>
+            )}
         </div>
     );
 };
-
-const StatBox = ({ icon, value, label, color }) => (
-    <div className="bg-gray-900/50 rounded-lg p-3 text-center">
-        <div className={`text-xl mb-1 ${color}`}>
-            <i className={icon}></i>
-        </div>
-        <div className="text-lg font-bold text-white">{value}</div>
-        <div className="text-xs text-gray-400">{label}</div>
-    </div>
-);
 
 export default ClanCard;

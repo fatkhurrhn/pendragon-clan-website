@@ -2,38 +2,32 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build"
       }
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "X-CSRF-Token, Authorization, Content-Type"
-      }
+      "dest": "/api/$1.js"
+    },
+    {
+      "src": "/static/(.*)",
+      "headers": { "cache-control": "s-maxage=31536000,immutable" }
     },
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/index.html"
     }
   ],
   "env": {
-    "CLAN_TAG": "2Y29VCP89"
-  },
-  "github": {
-    "enabled": true,
-    "autoJobCancelation": true
-  },
-  "regions": ["sin1"]
+    "REACT_APP_COC_API_KEY": "@coc_api_key"
+  }
 }
