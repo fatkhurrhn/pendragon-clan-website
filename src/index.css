@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.clan-badge {
+  background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+}
+
+.coc-button {
+  background: linear-gradient(to bottom, #FFD700, #B8860B);
+  color: #8B4513;
+  font-weight: 600;
+  box-shadow: 0 4px 0 #8B4513;
+  transition: all 0.2s ease;
+}
+
+.coc-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #8B4513;
+}
+
+.coc-card {
+  background: linear-gradient(to bottom right, #F5DEB3, #DEB887);
+  border: 3px solid #8B4513;
+  border-radius: 15px;
+}
+
+.stat-card {
+  background: linear-gradient(to bottom, #FFF8DC, #F5DEB3);
+  border: 2px solid #D2691E;
+}
