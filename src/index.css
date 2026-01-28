@@ -29,3 +29,11 @@
   background: linear-gradient(to bottom, #FFF8DC, #F5DEB3);
   border: 2px solid #D2691E;
 }
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

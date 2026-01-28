@@ -7,7 +7,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
 const app = express();
 const PORT = process.env.PROXY_PORT || 3002;
 
-// CORS config
+// CORS untuk React
 app.use(cors({
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   methods: ['GET', 'POST'],
@@ -24,7 +24,7 @@ if (!COC_API_KEY) {
   process.exit(1);
 }
 
-// Helper function for API calls
+// Helper function
 async function fetchCoC(endpoint) {
   const url = `https://api.clashofclans.com/v1/${endpoint}`;
   const response = await axios.get(url, {
@@ -37,39 +37,43 @@ async function fetchCoC(endpoint) {
   return response.data;
 }
 
-// Routes
-app.get('/api/clan', async (req, res) => {
+// ROUTES TANPA /api/ PREFIX
+app.get('/clan', async (req, res) => {
   try {
     const data = await fetchCoC(`clans/${encodeURIComponent(CLAN_TAG)}`);
     res.json({ success: true, data, source: 'proxy', timestamp: new Date().toISOString() });
   } catch (error) {
+    console.error('Clan Error:', error.message);
     res.status(500).json({ success: false, error: error.response?.data?.message || error.message });
   }
 });
 
-app.get('/api/members', async (req, res) => {
+app.get('/members', async (req, res) => {
   try {
     const data = await fetchCoC(`clans/${encodeURIComponent(CLAN_TAG)}/members`);
     res.json({ success: true, data, source: 'proxy', timestamp: new Date().toISOString() });
   } catch (error) {
+    console.error('Members Error:', error.message);
     res.status(500).json({ success: false, error: error.response?.data?.message || error.message });
   }
 });
 
-app.get('/api/warlog', async (req, res) => {
+app.get('/warlog', async (req, res) => {
   try {
     const data = await fetchCoC(`clans/${encodeURIComponent(CLAN_TAG)}/warlog`);
     res.json({ success: true, data, source: 'proxy', timestamp: new Date().toISOString() });
   } catch (error) {
+    console.error('WarLog Error:', error.message);
     res.status(500).json({ success: false, error: error.response?.data?.message || error.message });
   }
 });
 
-app.get('/api/currentwar', async (req, res) => {
+app.get('/currentwar', async (req, res) => {
   try {
     const data = await fetchCoC(`clans/${encodeURIComponent(CLAN_TAG)}/currentwar`);
     res.json({ success: true, data, source: 'proxy', timestamp: new Date().toISOString() });
   } catch (error) {
+    console.error('CurrentWar Error:', error.message);
     res.status(500).json({ success: false, error: error.response?.data?.message || error.message });
   }
 });
@@ -79,9 +83,33 @@ app.get('/health', (req, res) => {
     status: '✅ ONLINE', 
     service: 'Pendragon Proxy',
     port: PORT,
-    env: 'development',
+    endpoints: ['/clan', '/members', '/warlog', '/currentwar', '/player/:tag'],
     time: new Date().toISOString()
   });
+});
+
+// Tambahin ini di proxy/server.js sebelum app.listen:
+app.get('/player/:tag', async (req, res) => {
+  try {
+    let playerTag = req.params.tag;
+    if (!playerTag.startsWith('#')) playerTag = '#' + playerTag;
+    
+    console.log('Fetching player:', playerTag);
+    
+    const data = await fetchCoC(`players/${encodeURIComponent(playerTag)}`);
+    
+    res.json({ 
+      success: true, 
+      data,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Player Error:', error.response?.data || error.message);
+    res.status(500).json({ 
+      success: false, 
+      error: error.response?.data?.message || error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {
@@ -91,13 +119,12 @@ app.listen(PORT, () => {
 ║     📍 http://localhost:${PORT}          ║
 ╚════════════════════════════════════════╝
 
-Endpoints:
-• Health:    http://localhost:${PORT}/health
-• Clan:      http://localhost:${PORT}/api/clan
-• Members:   http://localhost:${PORT}/api/members  
-• War Log:   http://localhost:${PORT}/api/warlog
-• Current:   http://localhost:${PORT}/api/currentwar
+Endpoints (Tanpa /api/):
+• http://localhost:${PORT}/clan
+• http://localhost:${PORT}/members  
+• http://localhost:${PORT}/warlog
+• http://localhost:${PORT}/currentwar
 
-Ready for React development! 🎮
+Ready for React! 🎮
 `);
 });
