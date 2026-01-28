@@ -6,7 +6,7 @@ const BottomNav = () => {
     const location = useLocation();
 
     const menus = [
-        { path: '/home', label: 'Home', icon: Home },
+        { path: '/', label: 'Home', icon: Home },
         { path: '/members', label: 'Members', icon: Users },
         { path: '/wars', label: 'Wars', icon: Swords },
         { path: '/capital', label: 'Capital', icon: Castle },
