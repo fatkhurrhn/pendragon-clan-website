@@ -1,25 +1,29 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import BottomNav from './components/BottomNav';
-import Home from './pages/Home';
-import Members from './pages/Members';
-import PlayerDetail from './pages/PlayerDetail';
-import WarLog from './pages/WarLog';
-import CapitalRaids from './pages/CapitalRaids';
-import Others from './pages/Others';
+// App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from '../context/AuthContext';
+import BaseHome from './pages/BaseHome';
+import UploadBase from './pages/UploadBase';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/player/:tag" element={<PlayerDetail />} />
-        <Route path="/wars" element={<WarLog />} />
-        <Route path="/capital" element={<CapitalRaids />} />
-        <Route path="/others" element={<Others />} />
-      </Routes>
-      <BottomNav />
-    </BrowserRouter>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<BaseHome />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/upload"
+            element={
+              <ProtectedRoute>
+                <UploadBase />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
