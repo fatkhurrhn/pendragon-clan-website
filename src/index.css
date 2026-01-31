@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-navy: #0F2854;
+  --color-blue: #1C4D8D;
+  --color-sky: #4988C4;
+  --color-cyan: #BDE8F5;
+}
+
 .clan-badge {
   background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
 }

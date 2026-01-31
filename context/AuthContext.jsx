@@ -1,101 +1,93 @@
 // context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { auth, googleProvider } from '../firebase';
-import { signInWithPopup } from 'firebase/auth';
-
+import { auth, googleProvider, db } from '../firebase';
 import {
-    signInWithRedirect,
+    signInWithPopup,
     onAuthStateChanged,
     signOut,
-    getRedirectResult,
-    GoogleAuthProvider
+    getRedirectResult
 } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userData, setUserData] = useState(null); // Data dari Firestore
     const [loading, setLoading] = useState(true);
-    const [authError, setAuthError] = useState(null);
 
     useEffect(() => {
-        // Cek hasil redirect saat komponen mount
-        getRedirectResult(auth)
-            .then((result) => {
-                console.log("Redirect result:", result); // DEBUG
+        getRedirectResult(auth).catch(console.error);
 
-                if (result) {
-                    // Ini credential dari Google Access Token
-                    const credential = GoogleAuthProvider.credentialFromResult(result);
-                    const token = credential?.accessToken;
-                    const user = result.user;
+        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+            if (authUser) {
+                // Ambil atau buat dokumen user di Firestore
+                const userRef = doc(db, 'users', authUser.uid);
+                const userSnap = await getDoc(userRef);
 
-                    console.log("Login sukses:", user?.email); // DEBUG
-                    setAuthError(null);
-                }
-            })
-            .catch((error) => {
-                console.error("Error saat redirect:", error); // DEBUG
-                setAuthError(error.message);
-
-                // Handle error spesifik
-                const errorCode = error.code;
-                const errorMessage = error.message;
-
-                if (errorCode === 'auth/unauthorized-domain') {
-                    console.error("Domain ini belum di-whitelist di Firebase Console!");
-                } else if (errorCode === 'auth/cancelled-popup-request') {
-                    console.error("Request dibatalkan");
+                if (userSnap.exists()) {
+                    // Update last login tapi keep data lainnya
+                    setUserData(userSnap.data());
                 } else {
-                    console.error("Error code:", errorCode, "Message:", errorMessage);
-                }
-            });
+                    // Buat dokumen baru untuk user
+                    const newUserData = {
+                        uid: authUser.uid,
+                        email: authUser.email,
+                        displayName: authUser.displayName || 'Unknown',
+                        playerName: authUser.displayName || 'Unknown', // Default sama dengan displayName
+                        playerId: '', // Default kosong
+                        photoURL: authUser.photoURL || '/default-profile.jpg',
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    };
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("Auth state changed:", user?.email || "No user"); // DEBUG
-            setUser(user);
+                    await setDoc(userRef, newUserData);
+                    setUserData(newUserData);
+                }
+
+                setUser(authUser);
+            } else {
+                setUser(null);
+                setUserData(null);
+            }
             setLoading(false);
         });
 
         return unsubscribe;
     }, []);
 
-    // const login = () => {
-    //     setAuthError(null);
-    //     console.log("Memulai login redirect..."); // DEBUG
-
-    //     // Clear any pending redirects first
-    //     googleProvider.setCustomParameters({
-    //         prompt: 'select_account' // Force pilih akun setiap kali
-    //     });
-
-    //     signInWithRedirect(auth, googleProvider)
-    //         .catch((error) => {
-    //             console.error("Error memulai redirect:", error);
-    //             setAuthError(error.message);
-    //         });
-    // };
-
-    // import { signInWithPopup } from 'firebase/auth';
     const login = async () => {
         try {
-            // Untuk testing sementara pakai popup
-            const result = await signInWithPopup(auth, googleProvider);
-            console.log("Login sukses:", result.user);
+            await signInWithPopup(auth, googleProvider);
         } catch (error) {
-            console.error("Login error:", error);
+            if (error.code === 'auth/popup-blocked') {
+                console.error("Popup diblock");
+            }
+            throw error;
         }
     };
 
-    const logout = () => {
-        signOut(auth).then(() => {
-            console.log("Logout sukses");
-            setAuthError(null);
-        });
+    const logout = () => signOut(auth);
+
+    const refreshUserData = async () => {
+        if (user) {
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                setUserData(userSnap.data());
+            }
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, authError }}>
+        <AuthContext.Provider value={{
+            user,
+            userData,
+            login,
+            logout,
+            loading,
+            refreshUserData
+        }}>
             {children}
         </AuthContext.Provider>
     );
