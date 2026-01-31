@@ -7,7 +7,7 @@ Official website for Pendragon Clan (#2Y29VCP89) - Clash of Clans
 - Member list with stats
 - War history and statistics
 - Mobile-first responsive design
-- Auto-deploy with GitHub + Vercel
+- Auto-deploy with GitHub + Vercels
 
 ## 📦 Installation
 
